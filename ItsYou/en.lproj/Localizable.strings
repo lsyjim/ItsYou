@@ -1,0 +1,30 @@
+/* 
+  Localizable.strings
+  ItsYou
+
+  Created by Lai Jiun Yung on 2016/3/17.
+
+*/
+"Draw" = "Draw";
+"Reset" = "Reset";
+
+"Auto" = "Auto Draw";
+"Manually" = "Manually Draw";
+"CAD" = "See Ads.";
+"RateUS" = "Rate us";
+"Feedback" = "Feedback";
+"Positive" = "Positive";
+"Reverse" = "Reverse";
+
+"Input" = "Input";
+"Most5" = "Input most five digitals";
+"NumOfDraw" = "Number of draws";
+"Most1000" = "Input most 1000";
+
+"APPNAME" = "APP Name";
+"APPVERSION" = "APP Version";
+"DEVICE" = "Device";
+"OS" = "OS";
+"LEAVEOPINION" = "Please leave your treasured opinions";
+
+"ITSYOU" = "It's You";

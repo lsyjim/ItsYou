@@ -1,0 +1,30 @@
+/* 
+  Localizable.strings
+  ItsYou
+
+  Created by Lai Jiun Yung on 2016/3/17.
+
+*/
+"Draw" = "抽籤";
+"Reset" = "重置";
+
+"Auto" = "自動抽";
+"Manually" = "手動抽";
+"CAD" = "觀看廣告";
+"RateUS" = "給予評價";
+"Feedback" = "意見回饋";
+"Positive" = "正序";
+"Reverse" = "反序";
+
+"Input" = "輸入";
+"Most5" = "最多輸入五位數";
+"NumOfDraw" = "最多抽出幾個";
+"Most1000" = "最多輸入1000";
+
+"APPNAME" = "APP名稱";
+"APPVERSION" = "APP版本";
+"DEVICE" = "行動裝置";
+"OS" = "作業系統";
+"LEAVEOPINION" = "請留下您寶貴的意見";
+
+"ITSYOU" = "就是你了";
