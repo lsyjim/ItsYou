@@ -221,7 +221,7 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
         cell.textLabel?.text = themes[indexPath.row]["name"] as? String
         cell.textLabel?.textColor = CTransform.getColorWithHex("656565")
         cell.accessoryType = (indexPath.row == wheelCurrentIndex()) ? .checkmark : .none
-        cell.backgroundColor = UIColor.white
+        cell.backgroundColor = CTransform.getColorWithHex("f0eff5")   // 與表格底色一致，不全白
         return cell
     }
 
@@ -252,6 +252,40 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
         else if indexPath.row == cur { newCur = min(cur, themes.count - 1) }
         setWheelCurrentIndex(newCur)
         tableView.reloadData()
+    }
+
+    //往右滑 → 改名
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let rename = UIContextualAction(style: .normal, title: "WheelEdit".localized) { [weak self] _, _, done in
+            self?.renameTheme(at: indexPath.row)
+            done(true)
+        }
+        rename.backgroundColor = COLOR_MENU_LIST
+        return UISwipeActionsConfiguration(actions: [rename])
+    }
+
+    //主題改名
+    func renameTheme(at index: Int) {
+        var themes = wheelThemes()
+        if index >= themes.count { return }
+        let alert = UIAlertController(title: "ThemeAddTitle".localized, message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.text = themes[index]["name"] as? String
+            tf.placeholder = "ThemeNamePlaceholder".localized
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Done", style: .default) { [weak self, weak alert] _ in
+            guard let self = self else { return }
+            let name = alert?.textFields?.first?.text ?? ""
+            if name.isEmpty { return }
+            var themes = wheelThemes()
+            if index < themes.count {
+                themes[index]["name"] = name
+                setWheelThemes(themes)
+                self.m_themeTable.reloadData()
+            }
+        })
+        m_parentObj?.present(alert, animated: true)
     }
 
     @objc func onThemeAddAction() {

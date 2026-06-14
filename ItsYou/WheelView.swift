@@ -211,8 +211,12 @@ class WheelView: UIView, UITableViewDataSource, UITableViewDelegate {
     //MARK: - 轉盤繪製
     //------------------------------------------------------------------------------------------------------------------------------------------------
     func drawWheel() {
-        // 清掉舊的扇形與文字
-        m_wheelContainer.layer.sublayers?.removeAll()
+        // 清掉舊的扇形：只移除自己加入的 CAShapeLayer，
+        // 不可動到 UILabel 的 backing layer，否則會破壞 UIView↔CALayer 階層而崩潰
+        m_wheelContainer.layer.sublayers?.forEach { layer in
+            if layer is CAShapeLayer { layer.removeFromSuperlayer() }
+        }
+        // 清掉舊的文字（UILabel 由 removeFromSuperview 正常移除，連同其圖層）
         for sub in m_wheelContainer.subviews { sub.removeFromSuperview() }
 
         let items = m_items
@@ -480,7 +484,7 @@ class WheelView: UIView, UITableViewDataSource, UITableViewDelegate {
             let cell = tableView.dequeueReusableCell(withIdentifier: "editCell", for: indexPath)
             cell.textLabel?.text = m_items[indexPath.row]
             cell.textLabel?.textColor = CTransform.getColorWithHex("656565")
-            cell.backgroundColor = UIColor.white
+            cell.backgroundColor = CTransform.getColorWithHex("f0eff5")   // 與表格底色一致，不全白
             return cell
         }
         let cell = tableView.dequeueReusableCell(withIdentifier: "historyCell", for: indexPath)
