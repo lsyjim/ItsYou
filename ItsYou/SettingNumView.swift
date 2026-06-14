@@ -9,11 +9,16 @@
 import UIKit
 import MessageUI
 
-class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDelegate {
+class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     let m_fromButton:UIButton = UIButton()
     let m_toButton:UIButton = UIButton()
     let m_limitButton:UIButton = UIButton()
     var m_nowTFisWho:String!
+
+    // 轉盤模式：主題管理
+    var m_numberSettingViews:[UIView] = []   // 數字模式專屬設定元件，轉盤模式時隱藏
+    var m_themeAddButton:UIButton!           // 新增主題鈕
+    var m_themeTable:UITableView!            // 主題清單
     
     var m_parentObj:AnyObject?//找到老爸是誰
     var m_onDoneCallBack:Selector?//請老爸callback
@@ -161,7 +166,111 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
         orderButton.addTarget(self, action: #selector(SettingNumView.onOrderAction(_:)), for: .touchUpInside)
         mainView.addSubview(orderButton)
 
-        
+        //收集數字模式專屬設定元件，轉盤模式時整組隱藏
+        m_numberSettingViews = [fromLabel, m_fromButton, toLabel, m_toButton,
+                                limitLabel, m_limitButton, autoLabel, autoButton,
+                                orderLabel, orderButton]
+
+        //轉盤模式：上方改放主題管理（新增鈕 + 主題清單），高度到「觀看廣告」上方 10px
+        let cadY = SCREEN_HEIGHT - adH - H*3 - space*3   // 與 CAD 按鈕同一個 Y
+        m_themeAddButton = UIButton(frame: CGRect(x: space, y: 20, width: mainView.frame.width - space*2, height: H))
+        m_themeAddButton.setTitle("ThemeAdd".localized, for: UIControl.State())
+        m_themeAddButton.setTitleColor(COLOR_MENU_LIST, for: UIControl.State())
+        m_themeAddButton.titleLabel?.font = UIFont.systemFont(ofSize: H*0.45)
+        m_themeAddButton.layer.borderColor = COLOR_LINE_GREY.cgColor
+        m_themeAddButton.layer.borderWidth = 1
+        m_themeAddButton.layer.cornerRadius = 5
+        m_themeAddButton.addTarget(self, action: #selector(SettingNumView.onThemeAddAction), for: .touchUpInside)
+        m_themeAddButton.isHidden = true
+        mainView.addSubview(m_themeAddButton)
+
+        let themeTableY = m_themeAddButton.frame.origin.y + H + space
+        m_themeTable = UITableView(frame: CGRect(x: 0, y: themeTableY,
+                                                 width: mainView.frame.width,
+                                                 height: max(0, (cadY - 10) - themeTableY)))
+        m_themeTable.backgroundColor = CTransform.getColorWithHex("f0eff5")
+        m_themeTable.dataSource = self
+        m_themeTable.delegate = self
+        m_themeTable.rowHeight = 48
+        m_themeTable.register(UITableViewCell.self, forCellReuseIdentifier: "themeCell")
+        m_themeTable.isHidden = true
+        mainView.addSubview(m_themeTable)
+    }
+
+    //依目前模式切換設定面板上半部內容
+    func prepareForMode() {
+        let isWheel = USER_DEFAULTS.bool(forKey: "WHEEL_MODE_ON")
+        for v in m_numberSettingViews { v.isHidden = isWheel }
+        m_themeAddButton.isHidden = !isWheel
+        m_themeTable.isHidden = !isWheel
+        if isWheel {
+            ensureWheelThemesInited()
+            m_themeTable.reloadData()
+        }
+    }
+
+    //MARK: - 主題清單 UITableView
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return wheelThemes().count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "themeCell", for: indexPath)
+        let themes = wheelThemes()
+        cell.textLabel?.text = themes[indexPath.row]["name"] as? String
+        cell.textLabel?.textColor = CTransform.getColorWithHex("656565")
+        cell.accessoryType = (indexPath.row == wheelCurrentIndex()) ? .checkmark : .none
+        cell.backgroundColor = UIColor.white
+        return cell
+    }
+
+    //點擊切換當前主題
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        setWheelCurrentIndex(indexPath.row)
+        tableView.reloadData()
+    }
+
+    //左滑刪除（至少保留一個主題）
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle != .delete { return }
+        var themes = wheelThemes()
+        if themes.count <= 1 {
+            self.showAlertWithMessage("ThemeNeedOne".localized)
+            return
+        }
+        let cur = wheelCurrentIndex()
+        themes.remove(at: indexPath.row)
+        setWheelThemes(themes)
+        var newCur = cur
+        if indexPath.row < cur { newCur = cur - 1 }
+        else if indexPath.row == cur { newCur = min(cur, themes.count - 1) }
+        setWheelCurrentIndex(newCur)
+        tableView.reloadData()
+    }
+
+    @objc func onThemeAddAction() {
+        let alert = UIAlertController(title: "ThemeAddTitle".localized, message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.placeholder = "ThemeNamePlaceholder".localized
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Done", style: .default) { [weak self, weak alert] _ in
+            guard let self = self else { return }
+            let name = alert?.textFields?.first?.text ?? ""
+            if name.isEmpty { return }
+            var themes = wheelThemes()
+            themes.append(["name": name, "items": [String]()])
+            setWheelThemes(themes)
+            setWheelCurrentIndex(themes.count - 1)   // 新增後設為當前主題
+            self.m_themeTable.reloadData()
+        })
+        m_parentObj?.present(alert, animated: true)
     }
     
     @objc func onLeftAction() {

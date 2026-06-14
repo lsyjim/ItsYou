@@ -39,6 +39,53 @@ func CLog(_ message: String,
     
 }
 
+//MARK: - 轉盤主題資料存取（WheelView 與 SettingNumView 共用）
+//-------------------------------------------------------------------------------------------------------------------------------------
+// 每個主題格式：["name": String, "items": [String]]
+func wheelThemes() -> [[String: Any]] {
+    return USER_DEFAULTS.array(forKey: "WHEEL_THEMES") as? [[String: Any]] ?? []
+}
+
+func setWheelThemes(_ themes: [[String: Any]]) {
+    USER_DEFAULTS.set(themes, forKey: "WHEEL_THEMES")
+}
+
+func wheelCurrentIndex() -> Int {
+    let count = wheelThemes().count
+    var idx = USER_DEFAULTS.integer(forKey: "WHEEL_CURRENT")
+    if idx >= count { idx = max(0, count - 1) }
+    if idx < 0 { idx = 0 }
+    return idx
+}
+
+func setWheelCurrentIndex(_ i: Int) {
+    USER_DEFAULTS.set(i, forKey: "WHEEL_CURRENT")
+}
+
+func wheelCurrentThemeName() -> String {
+    let themes = wheelThemes()
+    let idx = wheelCurrentIndex()
+    if idx < themes.count { return themes[idx]["name"] as? String ?? "" }
+    return ""
+}
+
+// 首次啟動 / 舊版升級：確保至少有一個主題（沿用舊的 WHEEL_ITEMS 內容）
+func ensureWheelThemesInited() {
+    if USER_DEFAULTS.array(forKey: "WHEEL_THEMES") != nil { return }
+    var items: [String]
+    if let old = USER_DEFAULTS.array(forKey: "WHEEL_ITEMS") as? [String], !old.isEmpty {
+        items = old   // 從舊版單一轉盤搬移內容
+    } else {
+        items = ["WheelSample1".localized,
+                 "WheelSample2".localized,
+                 "WheelSample3".localized,
+                 "WheelSample4".localized]
+    }
+    let theme: [String: Any] = ["name": "ThemeDefault".localized, "items": items]
+    setWheelThemes([theme])
+    setWheelCurrentIndex(0)
+}
+
 //MARK: - 多語系用
 //-------------------------------------------------------------------------------------------------------------------------------------
 extension String {

@@ -28,3 +28,32 @@
 "LEAVEOPINION" = "請留下您寶貴的意見";
 
 "ITSYOU" = "就是你了";
+
+/* 轉盤主題 */
+"ThemeDefault" = "預設主題";
+"ThemeAdd" = "＋ 新增主題";
+"ThemeAddTitle" = "新增主題";
+"ThemeNamePlaceholder" = "輸入主題名稱";
+"ThemeNeedOne" = "至少需要保留一個主題";
+
+/* 模式選擇 */
+"ModeTitle" = "選擇模式";
+"ModeNumber" = "數字抽籤";
+"ModeWheel" = "轉盤抽籤";
+
+/* 轉盤抽籤 */
+"WheelStart" = "開始";
+"WheelEdit" = "編輯";
+"WheelDone" = "完成";
+"WheelAdd" = "新增";
+"WheelClear" = "清除";
+"WheelHistory" = "記錄";
+"WheelResult" = "結果：";
+"WheelNeedTwo" = "至少需要兩個項目才能轉動";
+"WheelEditTitle" = "編輯項目";
+"WheelInputPlaceholder" = "輸入文字";
+"WheelClearConfirm" = "確定清除所有記錄？";
+"WheelSample1" = "選項一";
+"WheelSample2" = "選項二";
+"WheelSample3" = "選項三";
+"WheelSample4" = "選項四";

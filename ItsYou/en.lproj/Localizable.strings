@@ -28,3 +28,32 @@
 "LEAVEOPINION" = "Please leave your treasured opinions";
 
 "ITSYOU" = "It's You";
+
+/* Wheel Theme */
+"ThemeDefault" = "Default";
+"ThemeAdd" = "+ Add Theme";
+"ThemeAddTitle" = "Add Theme";
+"ThemeNamePlaceholder" = "Enter theme name";
+"ThemeNeedOne" = "Keep at least one theme";
+
+/* Mode */
+"ModeTitle" = "Select Mode";
+"ModeNumber" = "Number Draw";
+"ModeWheel" = "Wheel Draw";
+
+/* Wheel */
+"WheelStart" = "Start";
+"WheelEdit" = "Edit";
+"WheelDone" = "Done";
+"WheelAdd" = "Add";
+"WheelClear" = "Clear";
+"WheelHistory" = "History";
+"WheelResult" = "Result: ";
+"WheelNeedTwo" = "Need at least 2 items to spin";
+"WheelEditTitle" = "Edit Item";
+"WheelInputPlaceholder" = "Enter text";
+"WheelClearConfirm" = "Clear all records?";
+"WheelSample1" = "Option 1";
+"WheelSample2" = "Option 2";
+"WheelSample3" = "Option 3";
+"WheelSample4" = "Option 4";

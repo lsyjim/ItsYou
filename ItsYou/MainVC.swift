@@ -35,6 +35,15 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     
     var m_adStage:UIViewController!
     var m_settingNumView:SettingNumView!
+
+    // 轉盤模式相關（與數字抽籤完全獨立）
+    var m_wheelView:WheelView!
+    var m_numberModeViews:[UIView] = []   // 數字模式專屬元件，切換時整組顯示 / 隱藏
+    var m_menuButton:UIButton!            // 左上選單鈕
+    var m_settingButton:UIButton!         // 右上設定鈕
+    var m_modeView:UIView!                // 模式選擇彈出面板（仿 SettingView）
+    var m_modeNumberButton:UIButton!      // 模式：數字抽籤
+    var m_modeWheelButton:UIButton!       // 模式：轉盤抽籤
     
     func refreshWithFrame(_ frame: CGRect) {
         self.view.frame = frame
@@ -82,17 +91,21 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     func frameInit() {
     
         var w:CGFloat
-        var adH:CGFloat
         if UIDevice.current.userInterfaceIdiom == .pad {
             w = SCREEN_WIDTH * 3 / 12
             m_labelH = 120.0
-            adH = 90.0
-        }else {
+        } else {
             w = SCREEN_WIDTH * 3 / 8
-            adH = 50.0
         }
+
+        // 廣告高度固定 40pt，不隨裝置變動，避免遮住 AdMob 意見回饋按鈕
+        let adH: CGFloat = 40
+
+        // 按鈕區域總高 = 按鈕直徑 + 上下間距 + 廣告（全部貼底）
+        let buttonAreaH: CGFloat = w + 20 + adH
+
         m_frame = CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: m_labelH)
-        
+
         m_titleLabel = UILabel(frame:CGRect(x: 44,y: 0,width: SCREEN_WIDTH - 88,height: 64))
         m_titleLabel.text = String(format:"%d ~ %d",m_startNum,m_endNum)
         m_titleLabel.textColor = COLOR_LINE_GREY
@@ -100,7 +113,7 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         self.view.addSubview(m_titleLabel)
         //在此塊容器上掛載一份捲軸容器
         m_scrollView = UIScrollView()
-        m_scrollView.frame = CGRect(x: 0, y: 64, width: SCREEN_WIDTH, height: SCREEN_HEIGHT - 64 - w - 20 - adH)
+        m_scrollView.frame = CGRect(x: 0, y: 64, width: SCREEN_WIDTH, height: SCREEN_HEIGHT - 64 - buttonAreaH)
         m_scrollView.backgroundColor = CTransform.getColorWithHex("f0eff5")
         m_scrollView.delegate = self
         m_scrollView.showsVerticalScrollIndicator = true;//顯示右側垂直拉Bar條
@@ -109,14 +122,17 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         let line1 = UIView(frame: CGRect(x: 0,y: 63,width: SCREEN_WIDTH,height: 1))
         line1.backgroundColor = COLOR_LINE_GREY
         self.view.addSubview(line1)
-        
+
         let line2 = UIView(frame: CGRect(x: 0,y: m_scrollView.frame.origin.y + m_scrollView.frame.height,width: SCREEN_WIDTH,height: 1))
         line2.backgroundColor = COLOR_LINE_GREY
         self.view.addSubview(line2)
-        
+
+        // 按鈕中心 Y：從廣告頂部往上，留 w/2 + 10 的空間（adH 固定 40，全部貼底）
+        let buttonCenterY: CGFloat = SCREEN_HEIGHT - 40 - w / 2 - 10
+
         //生成抽籤按鈕
         m_drawLotsButton = UIButton(frame: CGRect(x: 0, y: 0, width: w, height: w))
-        m_drawLotsButton.center = CGPoint(x: SCREEN_WIDTH / 4 , y: SCREEN_HEIGHT - w / 2 - adH - 10)
+        m_drawLotsButton.center = CGPoint(x: SCREEN_WIDTH / 4 , y: buttonCenterY)
         m_drawLotsButton.setTitle("Draw".localized, for: UIControl.State())
         m_drawLotsButton.titleLabel?.font = UIFont.init(name: "Arial Rounded MT Bold", size: 26)
         m_drawLotsButton.setTitleColor(UIColor.black, for: .highlighted)
@@ -127,10 +143,10 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         m_drawLotsButton.layer.borderColor = CTransform.getColorWithHex("656565").cgColor
         m_drawLotsButton.addTarget(self, action: #selector(MainVC.onDrawLotsAction(_:)), for: .touchUpInside)
         self.view.addSubview(m_drawLotsButton)
-        
+
         //生成重置按鈕
         m_resetButton = UIButton(frame: CGRect(x: 0, y: 0, width: w, height: w))
-        m_resetButton.center = CGPoint(x: SCREEN_WIDTH * 3 / 4, y: SCREEN_HEIGHT - w / 2 - adH - 10)
+        m_resetButton.center = CGPoint(x: SCREEN_WIDTH * 3 / 4, y: buttonCenterY)
         m_resetButton.setTitle("Reset".localized, for: UIControl.State())
         m_resetButton.titleLabel?.font = UIFont.init(name: "Arial Rounded MT Bold", size: 26)
         m_resetButton.setTitleColor(UIColor.black, for: .highlighted)
@@ -142,13 +158,41 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         m_resetButton.addTarget(self, action: #selector(MainVC.onResetAction), for: .touchUpInside)
         self.view.addSubview(m_resetButton)
         
+        //收集數字模式專屬元件，供模式切換整組顯示 / 隱藏
+        m_numberModeViews = [m_titleLabel, m_scrollView, line1, line2, m_drawLotsButton, m_resetButton]
+
+        //生成轉盤畫面（疊在數字模式元件之上，但仍在頂部按鈕 / 廣告 / 設定頁之下）
+        m_wheelView = WheelView()
+        m_wheelView.refreshWithFrame(CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: SCREEN_HEIGHT))
+        m_wheelView.m_parentObj = self
+        // 編輯介面開 / 關時，連動隱藏頂部按鈕避免誤觸
+        m_wheelView.m_onEditToggle = { [weak self] isEditing in
+            self?.m_menuButton.isHidden = isEditing
+            self?.m_settingButton.isHidden = isEditing
+        }
+        // 轉盤結束時，沿用數字抽籤的 1/20 機率彈出插頁廣告
+        m_wheelView.m_onWantAd = { [weak self] in
+            self?.onAdAction()
+        }
+        self.view.addSubview(m_wheelView)
+
         //生成設定按鈕
-        let settingButton = UIButton(frame: CGRect(x: SCREEN_WIDTH - 44,y: 10,width: 44,height: 44))
-        settingButton.setTitle("⚙", for: UIControl.State())
-        settingButton.setTitleColor(UIColor.black, for: UIControl.State())
-        settingButton.addTarget(self, action: #selector(MainVC.onSettingAction), for: .touchUpInside)
-        self.view.addSubview(settingButton)
-        
+        m_settingButton = UIButton(frame: CGRect(x: SCREEN_WIDTH - 44,y: 10,width: 44,height: 44))
+        m_settingButton.setTitle("⚙", for: UIControl.State())
+        m_settingButton.setTitleColor(UIColor.black, for: UIControl.State())
+        m_settingButton.addTarget(self, action: #selector(MainVC.onSettingAction), for: .touchUpInside)
+        self.view.addSubview(m_settingButton)
+
+        //生成左上選單按鈕（對稱於右上 ⚙，用來切換數字 / 轉盤模式）
+        m_menuButton = UIButton(frame: CGRect(x: 0,y: 10,width: 44,height: 44))
+        m_menuButton.setTitle("☰", for: UIControl.State())
+        m_menuButton.setTitleColor(UIColor.black, for: UIControl.State())
+        m_menuButton.addTarget(self, action: #selector(MainVC.onMenuAction), for: .touchUpInside)
+        self.view.addSubview(m_menuButton)
+
+        //套用上次的模式（重開 App 回到上次模式）
+        self.applyWheelMode(USER_DEFAULTS.bool(forKey: "WHEEL_MODE_ON"))
+
         m_maskView.backgroundColor = COLOR_BLUR_BLACK
         m_maskView.alpha = 0.0
         self.view.addSubview(m_maskView)
@@ -167,22 +211,76 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         m_indicatior.style = UIActivityIndicatorView.Style.medium
         self.view.addSubview(m_indicatior)
         m_indicatior.hidesWhenStopped = true
+
+        //生成模式選擇面板（疊在最上層，含遮罩）
+        self.buildModeView()
+    }
+
+    //生成模式選擇面板（仿 SettingView，從左側滑入）
+    func buildModeView() {
+        m_modeView = UIView(frame: CGRect(x: -SCREEN_WIDTH, y: 0, width: SCREEN_WIDTH, height: SCREEN_HEIGHT))
+        m_modeView.backgroundColor = UIColor.clear
+
+        let panelW = SCREEN_WIDTH * 2 / 3
+        //右側透明關閉區
+        let closeButton = UIButton(frame: CGRect(x: panelW, y: 0, width: SCREEN_WIDTH - panelW, height: SCREEN_HEIGHT))
+        closeButton.addTarget(self, action: #selector(MainVC.closeModePanel), for: .touchUpInside)
+        m_modeView.addSubview(closeButton)
+
+        let mainView = UIView(frame: CGRect(x: 0, y: 0, width: panelW, height: SCREEN_HEIGHT))
+        mainView.backgroundColor = CTransform.getColorWithHex("f0eff5")
+        mainView.layer.shadowOpacity = 0.2
+        mainView.layer.shadowColor = UIColor.black.cgColor
+        mainView.layer.shadowOffset = CGSize(width: 5, height: 0)
+        mainView.layer.shadowRadius = 5
+        m_modeView.addSubview(mainView)
+
+        let H: CGFloat = 50
+        let titleLabel = UILabel(frame: CGRect(x: 0, y: 30, width: panelW, height: H))
+        titleLabel.text = "ModeTitle".localized
+        titleLabel.textAlignment = .center
+        titleLabel.textColor = CTransform.getColorWithHex("656565")
+        titleLabel.font = UIFont.systemFont(ofSize: 20)
+        mainView.addSubview(titleLabel)
+
+        m_modeNumberButton = UIButton(frame: CGRect(x: 0, y: titleLabel.frame.maxY + 20, width: panelW, height: H))
+        m_modeNumberButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
+        m_modeNumberButton.addTarget(self, action: #selector(MainVC.onModeNumberAction), for: .touchUpInside)
+        mainView.addSubview(m_modeNumberButton)
+
+        m_modeWheelButton = UIButton(frame: CGRect(x: 0, y: m_modeNumberButton.frame.maxY + 10, width: panelW, height: H))
+        m_modeWheelButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
+        m_modeWheelButton.addTarget(self, action: #selector(MainVC.onModeWheelAction), for: .touchUpInside)
+        mainView.addSubview(m_modeWheelButton)
+
+        self.view.addSubview(m_modeView)
+    }
+
+    //更新兩個模式按鈕的勾選狀態
+    func refreshModeButtons() {
+        let on = USER_DEFAULTS.bool(forKey: "WHEEL_MODE_ON")
+        m_modeNumberButton.setTitle((on ? "" : "✓ ") + "ModeNumber".localized, for: .normal)
+        m_modeWheelButton.setTitle((on ? "✓ " : "") + "ModeWheel".localized, for: .normal)
+        m_modeNumberButton.setTitleColor(on ? UIColor.black : COLOR_MENU_LIST, for: .normal)
+        m_modeWheelButton.setTitleColor(on ? COLOR_MENU_LIST : UIColor.black, for: .normal)
     }
     
     func adInit() {
 
-        // v13.4：GAD 前綴全移除；currentOrientationAnchoredAdaptiveBanner 已改名為 largeAnchoredAdaptiveBanner
-        let adSize = largeAnchoredAdaptiveBanner(width: SCREEN_WIDTH)
+        // 使用標準 adaptive banner（約 50pt），容器鎖高 40pt 並 clip
+        // ⓘ 意見回饋按鈕在廣告頂端，完整顯示；底部多出的 ~10pt 在螢幕外不影響
+        let adSize = currentOrientationAnchoredAdaptiveBanner(width: SCREEN_WIDTH)
         m_GADBannerView = BannerView(adSize: adSize)
         m_GADBannerView.rootViewController = self
         m_GADBannerView.delegate = self
         m_GADBannerView.adUnitID = "ca-app-pub-3873309169448072/9054671147"
-        let adH = m_GADBannerView.adSize.size.height
-        let adView = UIView(frame: CGRect(x: 0, y: SCREEN_HEIGHT - adH, width: SCREEN_WIDTH, height: adH))
+
+        let adContainerH: CGFloat = 40
+        let adView = UIView(frame: CGRect(x: 0, y: SCREEN_HEIGHT - adContainerH, width: SCREEN_WIDTH, height: adContainerH))
+        adView.clipsToBounds = true  // 超過 40pt 的部分裁掉，不影響頂端按鈕區
         self.view.addSubview(adView)
         adView.addSubview(m_GADBannerView)
         m_GADBannerView.load(Request())
-        print(adH)
 
     }
     
@@ -469,15 +567,59 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     }
 
     @objc func onSettingAction() {
+        // 依目前模式切換設定面板內容（數字設定 or 轉盤主題清單）
+        m_settingNumView.prepareForMode()
         UIView.beginAnimations("", context: nil)
         m_maskView.alpha = 1.0
         m_settingNumView.frame = CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: SCREEN_HEIGHT)
         UIView.commitAnimations()
-        
+
     }
-    
+
     @objc func onTimerAction() {
-        // 保留空實作供設定頁 callback 呼叫，不做任何事
+        // 設定面板關閉時呼叫：轉盤模式下刷新主題標題與轉盤內容
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if USER_DEFAULTS.bool(forKey: "WHEEL_MODE_ON") {
+                self.m_wheelView.refreshTheme()
+            }
+        }
+    }
+
+    //MARK: - 模式切換（數字抽籤 <-> 轉盤抽籤）
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+    @objc func onMenuAction() {
+        // 彈出模式選擇面板（仿 SettingView）
+        self.refreshModeButtons()
+        UIView.animate(withDuration: 0.25) {
+            m_maskView.alpha = 1.0
+            self.m_modeView.frame = CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: SCREEN_HEIGHT)
+        }
+    }
+
+    @objc func closeModePanel() {
+        UIView.animate(withDuration: 0.25) {
+            m_maskView.alpha = 0.0
+            self.m_modeView.frame = CGRect(x: -SCREEN_WIDTH, y: 0, width: SCREEN_WIDTH, height: SCREEN_HEIGHT)
+        }
+    }
+
+    @objc func onModeNumberAction() {
+        self.applyWheelMode(false)
+        self.closeModePanel()
+    }
+
+    @objc func onModeWheelAction() {
+        self.applyWheelMode(true)
+        self.closeModePanel()
+    }
+
+    func applyWheelMode(_ on:Bool) {
+        USER_DEFAULTS.set(on, forKey: "WHEEL_MODE_ON")
+        m_wheelView.isHidden = !on
+        for v in m_numberModeViews {
+            v.isHidden = on
+        }
     }
 
     //直接開廣告（由 Thread.detachNewThreadSelector 呼叫，需切回主線程）

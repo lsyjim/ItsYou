@@ -28,3 +28,32 @@
 "LEAVEOPINION" = "请留下您宝贵的意见";
 
 "ITSYOU" = "就是你了";
+
+/* 转盘主题 */
+"ThemeDefault" = "默认主题";
+"ThemeAdd" = "＋ 新增主题";
+"ThemeAddTitle" = "新增主题";
+"ThemeNamePlaceholder" = "输入主题名称";
+"ThemeNeedOne" = "至少需要保留一个主题";
+
+/* 模式选择 */
+"ModeTitle" = "选择模式";
+"ModeNumber" = "数字抽签";
+"ModeWheel" = "转盘抽签";
+
+/* 转盘抽签 */
+"WheelStart" = "开始";
+"WheelEdit" = "编辑";
+"WheelDone" = "完成";
+"WheelAdd" = "新增";
+"WheelClear" = "清除";
+"WheelHistory" = "记录";
+"WheelResult" = "结果：";
+"WheelNeedTwo" = "至少需要两个项目才能转动";
+"WheelEditTitle" = "编辑项目";
+"WheelInputPlaceholder" = "输入文字";
+"WheelClearConfirm" = "确定清除所有记录？";
+"WheelSample1" = "选项一";
+"WheelSample2" = "选项二";
+"WheelSample3" = "选项三";
+"WheelSample4" = "选项四";
