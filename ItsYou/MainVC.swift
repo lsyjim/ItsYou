@@ -30,20 +30,40 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     var m_GADBannerView:BannerView!
     var m_GADInterstitial:InterstitialAd?   // v13.4：GAD 前綴全移除
     var m_isGADActivite:Bool = false
-    var m_isGADInterstitialCanShow:Bool = true
+    var m_isGADInterstitialCanShow:Bool = false  // 預設 false：啟動預載插頁後不自動顯示，等用戶操作再顯示
     var m_isInterstitialLoading:Bool = false  // 防止重複發請求
     
     var m_adStage:UIViewController!
     var m_settingNumView:SettingNumView!
 
-    // 轉盤模式相關（與數字抽籤完全獨立）
+    // 各模式畫面（彼此獨立，只在主畫面切換 show/hide）
     var m_wheelView:WheelView!
+    var m_diceView:DiceView!              // 骰子（完整版）
+    var m_coinView:CoinView!              // 銅板（完整版）
+    var m_paywallView:PaywallView!        // 升級頁
     var m_numberModeViews:[UIView] = []   // 數字模式專屬元件，切換時整組顯示 / 隱藏
     var m_menuButton:UIButton!            // 左上選單鈕
     var m_settingButton:UIButton!         // 右上設定鈕
     var m_modeView:UIView!                // 模式選擇彈出面板（仿 SettingView）
     var m_modeNumberButton:UIButton!      // 模式：數字抽籤
     var m_modeWheelButton:UIButton!       // 模式：轉盤抽籤
+    var m_modeDiceButton:UIButton!        // 模式：骰子
+    var m_modeCoinButton:UIButton!        // 模式：銅板
+    var m_modeUpgradeButton:UIButton!     // ✨ 升級完整版
+
+    // 模式：0 數字、1 轉盤、2 骰子、3 銅板
+    var currentMode:Int {
+        get {
+            if USER_DEFAULTS.object(forKey: "APP_MODE") == nil {
+                return USER_DEFAULTS.bool(forKey: "WHEEL_MODE_ON") ? 1 : 0   // 舊版相容
+            }
+            return USER_DEFAULTS.integer(forKey: "APP_MODE")
+        }
+        set {
+            USER_DEFAULTS.set(newValue, forKey: "APP_MODE")
+            USER_DEFAULTS.set(newValue == 1, forKey: "WHEEL_MODE_ON")  // 維持舊鍵同步
+        }
+    }
     
     func refreshWithFrame(_ frame: CGRect) {
         self.view.frame = frame
@@ -176,6 +196,18 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         }
         self.view.addSubview(m_wheelView)
 
+        //生成骰子畫面（完整版功能）
+        m_diceView = DiceView()
+        m_diceView.refreshWithFrame(CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: SCREEN_HEIGHT))
+        m_diceView.m_parentObj = self
+        self.view.addSubview(m_diceView)
+
+        //生成銅板畫面（完整版功能）
+        m_coinView = CoinView()
+        m_coinView.refreshWithFrame(CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: SCREEN_HEIGHT))
+        m_coinView.m_parentObj = self
+        self.view.addSubview(m_coinView)
+
         //生成設定按鈕
         m_settingButton = UIButton(frame: CGRect(x: SCREEN_WIDTH - 44,y: 10,width: 44,height: 44))
         m_settingButton.setTitle("⚙", for: UIControl.State())
@@ -191,7 +223,7 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         self.view.addSubview(m_menuButton)
 
         //套用上次的模式（重開 App 回到上次模式）
-        self.applyWheelMode(USER_DEFAULTS.bool(forKey: "WHEEL_MODE_ON"))
+        self.applyMode(currentMode)
 
         m_maskView.backgroundColor = COLOR_BLUR_BLACK
         m_maskView.alpha = 0.0
@@ -214,6 +246,18 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
 
         //生成模式選擇面板（疊在最上層，含遮罩）
         self.buildModeView()
+
+        //生成升級頁（最上層覆蓋）
+        m_paywallView = PaywallView()
+        m_paywallView.refreshWithFrame(CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: SCREEN_HEIGHT))
+        m_paywallView.m_parentObj = self
+        self.view.addSubview(m_paywallView)
+
+        //監聽完整版狀態變更（購買 / 還原 / 退款）→ 即時更新 UI
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(MainVC.onPremiumChanged),
+                                               name: StoreManager.premiumChangedNotification,
+                                               object: nil)
     }
 
     //生成模式選擇面板（仿 SettingView，從左側滑入）
@@ -243,29 +287,60 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         titleLabel.font = UIFont.systemFont(ofSize: 20)
         mainView.addSubview(titleLabel)
 
-        m_modeNumberButton = UIButton(frame: CGRect(x: 0, y: titleLabel.frame.maxY + 20, width: panelW, height: H))
-        m_modeNumberButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
-        m_modeNumberButton.addTarget(self, action: #selector(MainVC.onModeNumberAction), for: .touchUpInside)
-        mainView.addSubview(m_modeNumberButton)
+        func makeModeButton(y: CGFloat, action: Selector) -> UIButton {
+            let b = UIButton(frame: CGRect(x: 0, y: y, width: panelW, height: H))
+            b.titleLabel?.font = UIFont.systemFont(ofSize: 18)
+            b.addTarget(self, action: action, for: .touchUpInside)
+            mainView.addSubview(b)
+            return b
+        }
 
-        m_modeWheelButton = UIButton(frame: CGRect(x: 0, y: m_modeNumberButton.frame.maxY + 10, width: panelW, height: H))
-        m_modeWheelButton.titleLabel?.font = UIFont.systemFont(ofSize: 18)
-        m_modeWheelButton.addTarget(self, action: #selector(MainVC.onModeWheelAction), for: .touchUpInside)
-        mainView.addSubview(m_modeWheelButton)
+        m_modeNumberButton = makeModeButton(y: titleLabel.frame.maxY + 16, action: #selector(MainVC.onModeNumberAction))
+        m_modeWheelButton  = makeModeButton(y: m_modeNumberButton.frame.maxY + 6, action: #selector(MainVC.onModeWheelAction))
+        m_modeDiceButton   = makeModeButton(y: m_modeWheelButton.frame.maxY + 6, action: #selector(MainVC.onModeDiceAction))
+        m_modeCoinButton   = makeModeButton(y: m_modeDiceButton.frame.maxY + 6, action: #selector(MainVC.onModeCoinAction))
+
+        // ✨ 升級完整版（與上面模式項分隔）
+        m_modeUpgradeButton = makeModeButton(y: m_modeCoinButton.frame.maxY + 24, action: #selector(MainVC.onModeUpgradeAction))
 
         self.view.addSubview(m_modeView)
     }
 
-    //更新兩個模式按鈕的勾選狀態
+    //更新模式按鈕的勾選 / 上鎖 / 升級狀態
     func refreshModeButtons() {
-        let on = USER_DEFAULTS.bool(forKey: "WHEEL_MODE_ON")
-        m_modeNumberButton.setTitle((on ? "" : "✓ ") + "ModeNumber".localized, for: .normal)
-        m_modeWheelButton.setTitle((on ? "✓ " : "") + "ModeWheel".localized, for: .normal)
-        m_modeNumberButton.setTitleColor(on ? UIColor.black : COLOR_MENU_LIST, for: .normal)
-        m_modeWheelButton.setTitleColor(on ? COLOR_MENU_LIST : UIColor.black, for: .normal)
+        let mode = currentMode
+        let premium = StoreManager.shared.isPremium
+        let tick = "✓ "
+
+        m_modeNumberButton.setTitle((mode == 0 ? tick : "") + "ModeNumber".localized, for: .normal)
+        m_modeWheelButton.setTitle((mode == 1 ? tick : "") + "ModeWheel".localized, for: .normal)
+        // 骰子 / 銅板：免費時右側加 🔒
+        let diceLock = premium ? "" : "  🔒"
+        let coinLock = premium ? "" : "  🔒"
+        m_modeDiceButton.setTitle((mode == 2 ? tick : "") + "ModeDice".localized + diceLock, for: .normal)
+        m_modeCoinButton.setTitle((mode == 3 ? tick : "") + "ModeCoin".localized + coinLock, for: .normal)
+
+        m_modeNumberButton.setTitleColor(mode == 0 ? COLOR_MENU_LIST : UIColor.black, for: .normal)
+        m_modeWheelButton.setTitleColor(mode == 1 ? COLOR_MENU_LIST : UIColor.black, for: .normal)
+        m_modeDiceButton.setTitleColor(mode == 2 ? COLOR_MENU_LIST : UIColor.black, for: .normal)
+        m_modeCoinButton.setTitleColor(mode == 3 ? COLOR_MENU_LIST : UIColor.black, for: .normal)
+
+        // 已購買：隱藏升級項並顯示「已是完整版」；免費：顯示升級
+        if premium {
+            m_modeUpgradeButton.setTitle("PremiumActive".localized, for: .normal)
+            m_modeUpgradeButton.setTitleColor(CTransform.getColorWithHex("7b8b6f"), for: .normal)
+            m_modeUpgradeButton.isEnabled = false
+        } else {
+            m_modeUpgradeButton.setTitle("ModeUpgrade".localized, for: .normal)
+            m_modeUpgradeButton.setTitleColor(CTransform.getColorWithHex("965454"), for: .normal)
+            m_modeUpgradeButton.isEnabled = true
+        }
     }
     
     func adInit() {
+
+        // 完整版：不建立 / 不顯示底部橫幅
+        if StoreManager.shared.isPremium { return }
 
         // 使用標準 adaptive banner（約 50pt），容器鎖高 40pt 並 clip
         // ⓘ 意見回饋按鈕在廣告頂端，完整顯示；底部多出的 ~10pt 在螢幕外不影響
@@ -311,6 +386,7 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     //MARK: - GAD Events
     //------------------------------------------------------------------------------------------------------------------------------------------------
     func showAdBanner(_ isShow:Bool) {
+        guard m_GADBannerView != nil else { return }   // 完整版未建立橫幅
         m_isGADActivite = isShow
         UIView.animate(withDuration: 0.25) {
             if isShow {
@@ -322,6 +398,8 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     }
     
     func createAndLoadInterstitial() {
+        // 完整版：不載入插頁
+        if StoreManager.shared.isPremium { return }
         // 避免重複發請求，防止 "Too many recently failed requests"
         guard !m_isInterstitialLoading, m_GADInterstitial == nil else { return }
         m_isInterstitialLoading = true
@@ -550,8 +628,9 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         }
         
         
-        // Reset 是用戶主動觸發的自然斷點，適合顯示插頁廣告（1/5 機率，符合 AdMob 政策）
-        if arc4random() % 20 == 0 {
+        // Reset 是用戶主動觸發的自然斷點，適合顯示插頁廣告（1/20 機率，符合 AdMob 政策）
+        // 完整版：直接跳過，連 1/20 都不擲
+        if !StoreManager.shared.isPremium && arc4random() % 20 == 0 {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 if let interstitial = self.m_GADInterstitial {
@@ -580,7 +659,7 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
         // 設定面板關閉時呼叫：轉盤模式下刷新主題標題與轉盤內容
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            if USER_DEFAULTS.bool(forKey: "WHEEL_MODE_ON") {
+            if self.currentMode == 1 {
                 self.m_wheelView.refreshTheme()
             }
         }
@@ -605,25 +684,74 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     }
 
     @objc func onModeNumberAction() {
-        self.applyWheelMode(false)
+        self.applyMode(0)
         self.closeModePanel()
     }
 
     @objc func onModeWheelAction() {
-        self.applyWheelMode(true)
+        self.applyMode(1)
         self.closeModePanel()
     }
 
-    func applyWheelMode(_ on:Bool) {
-        USER_DEFAULTS.set(on, forKey: "WHEEL_MODE_ON")
-        m_wheelView.isHidden = !on
-        for v in m_numberModeViews {
-            v.isHidden = on
+    @objc func onModeDiceAction() {
+        // 骰子為完整版功能：免費點擊導向升級頁
+        if !StoreManager.shared.isPremium {
+            self.closeModePanel()
+            self.showPaywall()
+            return
+        }
+        self.applyMode(2)
+        self.closeModePanel()
+    }
+
+    @objc func onModeCoinAction() {
+        if !StoreManager.shared.isPremium {
+            self.closeModePanel()
+            self.showPaywall()
+            return
+        }
+        self.applyMode(3)
+        self.closeModePanel()
+    }
+
+    @objc func onModeUpgradeAction() {
+        self.closeModePanel()
+        self.showPaywall()
+    }
+
+    // 套用模式：show/hide 各畫面（不重建）
+    func applyMode(_ mode:Int) {
+        // 免費版禁止停留在骰子/銅板，保險回退到數字
+        var m = mode
+        if (m == 2 || m == 3) && !StoreManager.shared.isPremium { m = 0 }
+        currentMode = m
+        for v in m_numberModeViews { v.isHidden = (m != 0) }
+        m_wheelView.isHidden = (m != 1)
+        m_diceView.isHidden  = (m != 2)
+        m_coinView.isHidden  = (m != 3)
+    }
+
+    func showPaywall() {
+        m_paywallView.show()
+    }
+
+    //完整版狀態變更：移除廣告、更新選單；若升級頁開著則關閉
+    @objc func onPremiumChanged() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            if StoreManager.shared.isPremium {
+                // 移除已顯示的橫幅
+                self.m_GADBannerView?.removeFromSuperview()
+                self.m_GADInterstitial = nil
+            }
+            self.refreshModeButtons()
         }
     }
 
     //直接開廣告（由 Thread.detachNewThreadSelector 呼叫，需切回主線程）
     @objc func onAdAction() {
+        // 完整版：完全不顯示插頁
+        if StoreManager.shared.isPremium { return }
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             if let interstitial = self.m_GADInterstitial {

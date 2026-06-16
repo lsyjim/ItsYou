@@ -40,6 +40,29 @@
 "ModeTitle" = "Select Mode";
 "ModeNumber" = "Number Draw";
 "ModeWheel" = "Wheel Draw";
+"ModeDice" = "Dice";
+"ModeCoin" = "Coin";
+"ModeUpgrade" = "✨ Upgrade to Full";
+"PremiumActive" = "✅ Full Version";
+
+/* Dice / Coin */
+"DiceRoll" = "Roll";
+"CoinFlip" = "Flip";
+"CoinFront" = "Heads";
+"CoinBack" = "Tails";
+"CoinEditTitle" = "Edit Both Sides";
+
+/* In-App Purchase / Paywall */
+"PaywallTitle" = "✨ Upgrade to Full";
+"PaywallFeatureDice" = "Unlock Dice";
+"PaywallFeatureCoin" = "Unlock Coin";
+"PaywallFeatureNoAds" = "Remove All Ads";
+"PaywallBuy" = "Unlock Full Version";
+"PaywallLoading" = "Loading…";
+"RestorePurchase" = "Restore Purchase";
+"RestoreSuccess" = "Full version restored";
+"RestoreNone" = "No purchase to restore";
+"PurchaseThanks" = "Thank you! Full version unlocked";
 
 /* Wheel */
 "WheelStart" = "Start";

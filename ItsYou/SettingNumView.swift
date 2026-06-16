@@ -133,6 +133,13 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
         mainView.addSubview(autoButton)
         
         
+        //還原購買（內購）
+        let restoreButton = UIButton(frame: CGRect(x: 0,y: SCREEN_HEIGHT - adH - H*4 - space*4,width: mainView.frame.width,height: H))
+        restoreButton.setTitle("RestorePurchase".localized, for: UIControl.State())
+        restoreButton.setTitleColor(COLOR_MENU_LIST, for: UIControl.State())
+        restoreButton.addTarget(self, action: #selector(SettingNumView.onRestoreAction), for: .touchUpInside)
+        mainView.addSubview(restoreButton)
+
         let adButton = UIButton(frame: CGRect(x: 0,y: SCREEN_HEIGHT - adH - H*3 - space*3,width: mainView.frame.width,height: H))
         adButton.setTitle("CAD".localized, for: UIControl.State())
         adButton.setTitleColor(COLOR_MENU_LIST, for: UIControl.State())
@@ -171,8 +178,8 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
                                 limitLabel, m_limitButton, autoLabel, autoButton,
                                 orderLabel, orderButton]
 
-        //轉盤模式：上方改放主題管理（新增鈕 + 主題清單），高度到「觀看廣告」上方 10px
-        let cadY = SCREEN_HEIGHT - adH - H*3 - space*3   // 與 CAD 按鈕同一個 Y
+        //轉盤模式：上方改放主題管理（新增鈕 + 主題清單），高度到「還原購買」上方 10px
+        let cadY = SCREEN_HEIGHT - adH - H*4 - space*4   // 與最上方的底部按鈕（還原購買）同一個 Y
         m_themeAddButton = UIButton(frame: CGRect(x: space, y: 20, width: mainView.frame.width - space*2, height: H))
         m_themeAddButton.setTitle("ThemeAdd".localized, for: UIControl.State())
         m_themeAddButton.setTitleColor(COLOR_MENU_LIST, for: UIControl.State())
@@ -425,6 +432,16 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
         }
     }
     
+    //還原購買（內購）
+    @objc func onRestoreAction() {
+        Task {
+            let ok = await StoreManager.shared.restore()
+            DispatchQueue.main.async {
+                self.showAlertWithMessage(ok ? "RestoreSuccess".localized : "RestoreNone".localized)
+            }
+        }
+    }
+
     @objc func onRateAction() {
         guard let url = URL(string: "itms-apps://itunes.apple.com/app/bars/id1094133993"),
               UIApplication.shared.canOpenURL(url) else { return }

@@ -40,6 +40,29 @@
 "ModeTitle" = "选择模式";
 "ModeNumber" = "数字抽签";
 "ModeWheel" = "转盘抽签";
+"ModeDice" = "骰子";
+"ModeCoin" = "硬币";
+"ModeUpgrade" = "✨ 升级完整版";
+"PremiumActive" = "✅ 已是完整版";
+
+/* 骰子 / 硬币 */
+"DiceRoll" = "掷骰";
+"CoinFlip" = "翻";
+"CoinFront" = "正";
+"CoinBack" = "反";
+"CoinEditTitle" = "编辑两面文字";
+
+/* 内购 / 升级页 */
+"PaywallTitle" = "✨ 升级完整版";
+"PaywallFeatureDice" = "解锁骰子";
+"PaywallFeatureCoin" = "解锁硬币";
+"PaywallFeatureNoAds" = "移除所有广告";
+"PaywallBuy" = "解锁完整版";
+"PaywallLoading" = "加载中…";
+"RestorePurchase" = "还原购买";
+"RestoreSuccess" = "已还原完整版";
+"RestoreNone" = "找不到可还原的购买";
+"PurchaseThanks" = "感谢购买！已解锁完整版";
 
 /* 转盘抽签 */
 "WheelStart" = "开始";

@@ -40,6 +40,29 @@
 "ModeTitle" = "選擇模式";
 "ModeNumber" = "數字抽籤";
 "ModeWheel" = "轉盤抽籤";
+"ModeDice" = "骰子";
+"ModeCoin" = "銅板";
+"ModeUpgrade" = "✨ 升級完整版";
+"PremiumActive" = "✅ 已是完整版";
+
+/* 骰子 / 銅板 */
+"DiceRoll" = "擲骰";
+"CoinFlip" = "翻";
+"CoinFront" = "正";
+"CoinBack" = "反";
+"CoinEditTitle" = "編輯兩面文字";
+
+/* 內購 / 升級頁 */
+"PaywallTitle" = "✨ 升級完整版";
+"PaywallFeatureDice" = "解鎖骰子";
+"PaywallFeatureCoin" = "解鎖銅板";
+"PaywallFeatureNoAds" = "移除所有廣告";
+"PaywallBuy" = "解鎖完整版";
+"PaywallLoading" = "載入中…";
+"RestorePurchase" = "還原購買";
+"RestoreSuccess" = "已還原完整版";
+"RestoreNone" = "找不到可還原的購買";
+"PurchaseThanks" = "感謝購買！已解鎖完整版";
 
 /* 轉盤抽籤 */
 "WheelStart" = "開始";

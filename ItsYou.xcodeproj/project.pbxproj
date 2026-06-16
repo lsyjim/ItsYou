@@ -18,6 +18,13 @@
 		356621A81C9A53E20085D5C1 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 356621AA1C9A53E20085D5C1 /* InfoPlist.strings */; };
 		35AA00011D0000000085D5C1 /* WheelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AA00001D0000000085D5C1 /* WheelView.swift */; };
 		35AA00031D0000000085D5C1 /* wheelspin4s.wav in Resources */ = {isa = PBXBuildFile; fileRef = 35AA00021D0000000085D5C1 /* wheelspin4s.wav */; };
+		35AA00111D0000000085D5C1 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AA00101D0000000085D5C1 /* StoreManager.swift */; };
+		35AA00131D0000000085D5C1 /* SoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AA00121D0000000085D5C1 /* SoundPlayer.swift */; };
+		35AA00151D0000000085D5C1 /* DiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AA00141D0000000085D5C1 /* DiceView.swift */; };
+		35AA00171D0000000085D5C1 /* CoinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AA00161D0000000085D5C1 /* CoinView.swift */; };
+		35AA00191D0000000085D5C1 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AA00181D0000000085D5C1 /* PaywallView.swift */; };
+		35AA00211D0000000085D5C1 /* dice_roll.wav in Resources */ = {isa = PBXBuildFile; fileRef = 35AA00201D0000000085D5C1 /* dice_roll.wav */; };
+		35AA00231D0000000085D5C1 /* coin_flip.wav in Resources */ = {isa = PBXBuildFile; fileRef = 35AA00221D0000000085D5C1 /* coin_flip.wav */; };
 		AD74FDBA2FBCC46D006A15E9 /* GoogleMobileAds.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD74FDB62FBCC415006A15E9 /* GoogleMobileAds.xcframework */; };
 		AD74FDBB2FBCC46D006A15E9 /* GoogleMobileAds.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AD74FDB62FBCC415006A15E9 /* GoogleMobileAds.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AD74FDBD2FBCC470006A15E9 /* UserMessagingPlatform.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD74FDB72FBCC415006A15E9 /* UserMessagingPlatform.xcframework */; };
@@ -59,6 +66,14 @@
 		356621AB1C9A53E60085D5C1 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		35AA00001D0000000085D5C1 /* WheelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WheelView.swift; sourceTree = "<group>"; };
 		35AA00021D0000000085D5C1 /* wheelspin4s.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = wheelspin4s.wav; sourceTree = "<group>"; };
+		35AA00101D0000000085D5C1 /* StoreManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
+		35AA00121D0000000085D5C1 /* SoundPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoundPlayer.swift; sourceTree = "<group>"; };
+		35AA00141D0000000085D5C1 /* DiceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiceView.swift; sourceTree = "<group>"; };
+		35AA00161D0000000085D5C1 /* CoinView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoinView.swift; sourceTree = "<group>"; };
+		35AA00181D0000000085D5C1 /* PaywallView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		35AA00201D0000000085D5C1 /* dice_roll.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = dice_roll.wav; sourceTree = "<group>"; };
+		35AA00221D0000000085D5C1 /* coin_flip.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = coin_flip.wav; sourceTree = "<group>"; };
+		AD61CE1B2FE1964000A7F262 /* ItsYou.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = ItsYou.storekit; sourceTree = "<group>"; };
 		AD74FDB62FBCC415006A15E9 /* GoogleMobileAds.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:EQHXZ8M8AV:Google LLC"; lastKnownFileType = wrapper.xcframework; path = GoogleMobileAds.xcframework; sourceTree = "<group>"; };
 		AD74FDB72FBCC415006A15E9 /* UserMessagingPlatform.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:EQHXZ8M8AV:Google LLC"; lastKnownFileType = wrapper.xcframework; path = UserMessagingPlatform.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,6 +94,7 @@
 		3512E25F1C8D75AD00AD5B01 = {
 			isa = PBXGroup;
 			children = (
+				AD61CE1B2FE1964000A7F262 /* ItsYou.storekit */,
 				3512E26A1C8D75AD00AD5B01 /* ItsYou */,
 				3512E2691C8D75AD00AD5B01 /* Products */,
 			);
@@ -101,7 +117,14 @@
 				3512E27D1C8D760500AD5B01 /* MainVC.swift */,
 				3566219A1C9917550085D5C1 /* SettingNumView.swift */,
 				35AA00001D0000000085D5C1 /* WheelView.swift */,
+				35AA00101D0000000085D5C1 /* StoreManager.swift */,
+				35AA00121D0000000085D5C1 /* SoundPlayer.swift */,
+				35AA00141D0000000085D5C1 /* DiceView.swift */,
+				35AA00161D0000000085D5C1 /* CoinView.swift */,
+				35AA00181D0000000085D5C1 /* PaywallView.swift */,
 				35AA00021D0000000085D5C1 /* wheelspin4s.wav */,
+				35AA00201D0000000085D5C1 /* dice_roll.wav */,
+				35AA00221D0000000085D5C1 /* coin_flip.wav */,
 				3512E2721C8D75AD00AD5B01 /* Assets.xcassets */,
 				3512E2741C8D75AD00AD5B01 /* LaunchScreen.storyboard */,
 				3512E2771C8D75AD00AD5B01 /* Info.plist */,
@@ -180,6 +203,8 @@
 				356621A11C9A531E0085D5C1 /* Localizable.strings in Resources */,
 				3512E2731C8D75AD00AD5B01 /* Assets.xcassets in Resources */,
 				35AA00031D0000000085D5C1 /* wheelspin4s.wav in Resources */,
+				35AA00211D0000000085D5C1 /* dice_roll.wav in Resources */,
+				35AA00231D0000000085D5C1 /* coin_flip.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,6 +220,11 @@
 				356621981C99132F0085D5C1 /* CTransform.swift in Sources */,
 				3566219B1C9917550085D5C1 /* SettingNumView.swift in Sources */,
 				35AA00011D0000000085D5C1 /* WheelView.swift in Sources */,
+				35AA00111D0000000085D5C1 /* StoreManager.swift in Sources */,
+				35AA00131D0000000085D5C1 /* SoundPlayer.swift in Sources */,
+				35AA00151D0000000085D5C1 /* DiceView.swift in Sources */,
+				35AA00171D0000000085D5C1 /* CoinView.swift in Sources */,
+				35AA00191D0000000085D5C1 /* PaywallView.swift in Sources */,
 				3512E2801C8D768E00AD5B01 /* Config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -351,9 +381,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9U53ELUVJM;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 9U53ELUVJM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -365,11 +397,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.41;
+				MARKETING_VERSION = 1.50;
 				PRODUCT_BUNDLE_IDENTIFIER = HowCode.ItsYou;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = HowCode.ItsYou_Distribution;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -380,9 +413,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9U53ELUVJM;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 9U53ELUVJM;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -394,11 +429,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.41;
+				MARKETING_VERSION = 1.50;
 				PRODUCT_BUNDLE_IDENTIFIER = HowCode.ItsYou;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = HowCode.ItsYou_Distribution;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

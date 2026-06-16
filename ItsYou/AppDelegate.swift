@@ -27,6 +27,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, FullScreenContentDelegate
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
+        // 內購：啟動監聽與商品載入，並以 currentEntitlements 推導 isPremium
+        StoreManager.shared.start()
+
         // SDK 必須最優先初始化，任何廣告請求（包含 Banner）都必須在這之後
         MobileAds.shared.start { [weak self] _ in
             self?.loadAppOpenAd()
@@ -104,6 +107,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, FullScreenContentDelegate
     // MARK: - App Open Ad 載入
 
     func loadAppOpenAd() {
+        // 完整版：不載入開屏廣告
+        if StoreManager.shared.isPremium { return }
         // 避免重複載入
         guard !m_isAppOpenAdLoading, m_appOpenAd == nil else { return }
         m_isAppOpenAdLoading = true
@@ -129,6 +134,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, FullScreenContentDelegate
     }
 
     func showAppOpenAdIfAvailable() {
+        // 完整版：不顯示開屏廣告
+        if StoreManager.shared.isPremium { return }
         guard let rootVC = window?.rootViewController,
               let ad = m_appOpenAd else {
             loadAppOpenAd() // 還沒載入好就預先載入
