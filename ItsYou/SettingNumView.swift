@@ -213,8 +213,9 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
             m_themeTable.reloadData()
         }
         // 骰子 / 銅板：上方無設定，下方只保留「給予評價」「意見回饋」
+        // 觀看廣告：骰子/銅板隱藏；已購買完整版（無廣告）也隱藏
         let minimal = (mode == 2 || mode == 3)
-        m_adButton.isHidden = minimal
+        m_adButton.isHidden = minimal || StoreManager.shared.isPremium
     }
 
     //MARK: - 主題清單 UITableView

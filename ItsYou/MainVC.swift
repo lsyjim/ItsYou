@@ -50,6 +50,7 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     var m_modeDiceButton:UIButton!        // 模式：骰子
     var m_modeCoinButton:UIButton!        // 模式：銅板
     var m_modeUpgradeButton:UIButton!     // ✨ 升級完整版
+    var m_modeRestoreButton:UIButton!     // 還原購買
 
     // 模式：0 數字、1 轉盤、2 骰子、3 銅板
     var currentMode:Int {
@@ -302,6 +303,11 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
 
         // ✨ 升級完整版（與上面模式項分隔）
         m_modeUpgradeButton = makeModeButton(y: m_modeCoinButton.frame.maxY + 24, action: #selector(MainVC.onModeUpgradeAction))
+
+        // 還原購買
+        m_modeRestoreButton = makeModeButton(y: m_modeUpgradeButton.frame.maxY + 6, action: #selector(MainVC.onModeRestoreAction))
+        m_modeRestoreButton.setTitle("RestorePurchase".localized, for: .normal)
+        m_modeRestoreButton.setTitleColor(COLOR_MENU_LIST, for: .normal)
 
         self.view.addSubview(m_modeView)
     }
@@ -717,6 +723,21 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     @objc func onModeUpgradeAction() {
         self.closeModePanel()
         self.showPaywall()
+    }
+
+    //左側選單：還原購買
+    @objc func onModeRestoreAction() {
+        self.closeModePanel()
+        Task {
+            let ok = await StoreManager.shared.restore()
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                let alert = UIAlertController(title: ok ? "RestoreSuccess".localized : "RestoreNone".localized,
+                                              message: "", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                self.present(alert, animated: true)
+            }
+        }
     }
 
     // 套用模式：show/hide 各畫面（不重建）
