@@ -337,7 +337,7 @@ class WheelView: UIView, UITableViewDataSource, UITableViewDelegate {
         let anim = CABasicAnimation(keyPath: "transform.rotation.z")
         anim.fromValue = m_currentRotation
         anim.toValue = final
-        anim.duration = 4.0
+        anim.duration = 3.0
         anim.timingFunction = CAMediaTimingFunction(name: .easeOut)   // ease-out 緩停
         anim.isRemovedOnCompletion = false
         anim.fillMode = .forwards
