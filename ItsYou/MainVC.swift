@@ -646,8 +646,8 @@ class MainVC: UIViewController, BannerViewDelegate, FullScreenContentDelegate, U
     }
 
     @objc func onSettingAction() {
-        // 依目前模式切換設定面板內容（數字設定 or 轉盤主題清單）
-        m_settingNumView.prepareForMode()
+        // 依目前模式切換設定面板內容（數字設定 / 轉盤主題 / 骰子銅板精簡）
+        m_settingNumView.prepareForMode(currentMode)
         UIView.beginAnimations("", context: nil)
         m_maskView.alpha = 1.0
         m_settingNumView.frame = CGRect(x: 0, y: 0, width: SCREEN_WIDTH, height: SCREEN_HEIGHT)

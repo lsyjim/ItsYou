@@ -19,6 +19,7 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
     var m_numberSettingViews:[UIView] = []   // 數字模式專屬設定元件，轉盤模式時隱藏
     var m_themeAddButton:UIButton!           // 新增主題鈕
     var m_themeTable:UITableView!            // 主題清單
+    var m_adButton:UIButton!                 // 觀看廣告
     
     var m_parentObj:AnyObject?//找到老爸是誰
     var m_onDoneCallBack:Selector?//請老爸callback
@@ -133,18 +134,11 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
         mainView.addSubview(autoButton)
         
         
-        //還原購買（內購）
-        let restoreButton = UIButton(frame: CGRect(x: 0,y: SCREEN_HEIGHT - adH - H*4 - space*4,width: mainView.frame.width,height: H))
-        restoreButton.setTitle("RestorePurchase".localized, for: UIControl.State())
-        restoreButton.setTitleColor(COLOR_MENU_LIST, for: UIControl.State())
-        restoreButton.addTarget(self, action: #selector(SettingNumView.onRestoreAction), for: .touchUpInside)
-        mainView.addSubview(restoreButton)
-
-        let adButton = UIButton(frame: CGRect(x: 0,y: SCREEN_HEIGHT - adH - H*3 - space*3,width: mainView.frame.width,height: H))
-        adButton.setTitle("CAD".localized, for: UIControl.State())
-        adButton.setTitleColor(COLOR_MENU_LIST, for: UIControl.State())
-        adButton.addTarget(self, action: #selector(SettingNumView.onAdAction), for: .touchUpInside)
-        mainView.addSubview(adButton)
+        m_adButton = UIButton(frame: CGRect(x: 0,y: SCREEN_HEIGHT - adH - H*3 - space*3,width: mainView.frame.width,height: H))
+        m_adButton.setTitle("CAD".localized, for: UIControl.State())
+        m_adButton.setTitleColor(COLOR_MENU_LIST, for: UIControl.State())
+        m_adButton.addTarget(self, action: #selector(SettingNumView.onAdAction), for: .touchUpInside)
+        mainView.addSubview(m_adButton)
         
         let rateButton = UIButton(frame: CGRect(x: 0,y: SCREEN_HEIGHT - adH - H*2 - space*2,width: mainView.frame.width,height: H))
         rateButton.setTitle("RateUS".localized, for: UIControl.State())
@@ -178,8 +172,8 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
                                 limitLabel, m_limitButton, autoLabel, autoButton,
                                 orderLabel, orderButton]
 
-        //轉盤模式：上方改放主題管理（新增鈕 + 主題清單），高度到「還原購買」上方 10px
-        let cadY = SCREEN_HEIGHT - adH - H*4 - space*4   // 與最上方的底部按鈕（還原購買）同一個 Y
+        //轉盤模式：上方改放主題管理（新增鈕 + 主題清單），高度到「觀看廣告」上方 10px
+        let cadY = SCREEN_HEIGHT - adH - H*3 - space*3   // 與 CAD（觀看廣告）按鈕同一個 Y
         m_themeAddButton = UIButton(frame: CGRect(x: space, y: 20, width: mainView.frame.width - space*2, height: H))
         m_themeAddButton.setTitle("ThemeAdd".localized, for: UIControl.State())
         m_themeAddButton.setTitleColor(COLOR_MENU_LIST, for: UIControl.State())
@@ -204,16 +198,23 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
         mainView.addSubview(m_themeTable)
     }
 
-    //依目前模式切換設定面板上半部內容
-    func prepareForMode() {
-        let isWheel = USER_DEFAULTS.bool(forKey: "WHEEL_MODE_ON")
-        for v in m_numberSettingViews { v.isHidden = isWheel }
+    //依目前模式切換設定面板內容（0 數字 / 1 轉盤 / 2 骰子 / 3 銅板）
+    func prepareForMode(_ mode: Int) {
+        let isNumber = (mode == 0)
+        let isWheel  = (mode == 1)
+
+        // 數字設定：僅數字模式顯示
+        for v in m_numberSettingViews { v.isHidden = !isNumber }
+        // 主題管理：僅轉盤模式顯示
         m_themeAddButton.isHidden = !isWheel
         m_themeTable.isHidden = !isWheel
         if isWheel {
             ensureWheelThemesInited()
             m_themeTable.reloadData()
         }
+        // 骰子 / 銅板：上方無設定，下方只保留「給予評價」「意見回饋」
+        let minimal = (mode == 2 || mode == 3)
+        m_adButton.isHidden = minimal
     }
 
     //MARK: - 主題清單 UITableView
@@ -432,16 +433,6 @@ class SettingNumView: UIView, UITextFieldDelegate, MFMailComposeViewControllerDe
         }
     }
     
-    //還原購買（內購）
-    @objc func onRestoreAction() {
-        Task {
-            let ok = await StoreManager.shared.restore()
-            DispatchQueue.main.async {
-                self.showAlertWithMessage(ok ? "RestoreSuccess".localized : "RestoreNone".localized)
-            }
-        }
-    }
-
     @objc func onRateAction() {
         guard let url = URL(string: "itms-apps://itunes.apple.com/app/bars/id1094133993"),
               UIApplication.shared.canOpenURL(url) else { return }
