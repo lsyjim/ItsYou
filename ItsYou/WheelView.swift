@@ -8,6 +8,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class WheelView: UIView, UITableViewDataSource, UITableViewDelegate {
 
@@ -38,6 +39,7 @@ class WheelView: UIView, UITableViewDataSource, UITableViewDelegate {
     var m_diameter: CGFloat = 0                  // 轉盤直徑
     var m_currentRotation: Double = 0            // 目前累積旋轉角度（弧度）
     var m_isSpinning: Bool = false               // 轉動中鎖定，避免重複觸發
+    var m_spinPlayer: AVAudioPlayer?             // 轉動音效（wheelspin4s.wav，4 秒對應旋轉時間）
 
     // 莫蘭迪四色（沿用 Draw / Reset 兩色，另補兩色）
     let m_colors: [String] = ["965454", "7b8b6f", "c2a878", "8d97a6"]
@@ -200,6 +202,26 @@ class WheelView: UIView, UITableViewDataSource, UITableViewDelegate {
 
         // 繪製轉盤
         self.drawWheel()
+
+        // 載入轉動音效
+        self.setupAudio()
+    }
+
+    // 載入轉動音效（wheelspin4s.wav）
+    func setupAudio() {
+        guard let url = Bundle.main.url(forResource: "wheelspin4s", withExtension: "wav") else {
+            CLog("找不到轉盤音效 wheelspin4s.wav")
+            return
+        }
+        do {
+            // .ambient + mixWithOthers：不中斷使用者正在播放的音樂
+            try AVAudioSession.sharedInstance().setCategory(.ambient, options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+            m_spinPlayer = try AVAudioPlayer(contentsOf: url)
+            m_spinPlayer?.prepareToPlay()
+        } catch {
+            CLog("轉盤音效載入失敗：\(error.localizedDescription)")
+        }
     }
 
     // 主題變更後刷新：更新標題與重繪轉盤
@@ -289,6 +311,10 @@ class WheelView: UIView, UITableViewDataSource, UITableViewDelegate {
         m_isSpinning = true
         m_startButton.isEnabled = false
         m_editButton.isEnabled = false
+
+        // 播放轉動音效（從頭播放，4 秒對應旋轉時間）
+        m_spinPlayer?.currentTime = 0
+        m_spinPlayer?.play()
 
         let n = items.count
         let sector = 2 * Double.pi / Double(n)

@@ -17,6 +17,7 @@
 		356621A11C9A531E0085D5C1 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 356621A31C9A531E0085D5C1 /* Localizable.strings */; };
 		356621A81C9A53E20085D5C1 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 356621AA1C9A53E20085D5C1 /* InfoPlist.strings */; };
 		35AA00011D0000000085D5C1 /* WheelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AA00001D0000000085D5C1 /* WheelView.swift */; };
+		35AA00031D0000000085D5C1 /* wheelspin4s.wav in Resources */ = {isa = PBXBuildFile; fileRef = 35AA00021D0000000085D5C1 /* wheelspin4s.wav */; };
 		AD74FDBA2FBCC46D006A15E9 /* GoogleMobileAds.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD74FDB62FBCC415006A15E9 /* GoogleMobileAds.xcframework */; };
 		AD74FDBB2FBCC46D006A15E9 /* GoogleMobileAds.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AD74FDB62FBCC415006A15E9 /* GoogleMobileAds.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AD74FDBD2FBCC470006A15E9 /* UserMessagingPlatform.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD74FDB72FBCC415006A15E9 /* UserMessagingPlatform.xcframework */; };
@@ -57,6 +58,7 @@
 		356621A91C9A53E20085D5C1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		356621AB1C9A53E60085D5C1 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		35AA00001D0000000085D5C1 /* WheelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WheelView.swift; sourceTree = "<group>"; };
+		35AA00021D0000000085D5C1 /* wheelspin4s.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = wheelspin4s.wav; sourceTree = "<group>"; };
 		AD74FDB62FBCC415006A15E9 /* GoogleMobileAds.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:EQHXZ8M8AV:Google LLC"; lastKnownFileType = wrapper.xcframework; path = GoogleMobileAds.xcframework; sourceTree = "<group>"; };
 		AD74FDB72FBCC415006A15E9 /* UserMessagingPlatform.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:EQHXZ8M8AV:Google LLC"; lastKnownFileType = wrapper.xcframework; path = UserMessagingPlatform.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -99,6 +101,7 @@
 				3512E27D1C8D760500AD5B01 /* MainVC.swift */,
 				3566219A1C9917550085D5C1 /* SettingNumView.swift */,
 				35AA00001D0000000085D5C1 /* WheelView.swift */,
+				35AA00021D0000000085D5C1 /* wheelspin4s.wav */,
 				3512E2721C8D75AD00AD5B01 /* Assets.xcassets */,
 				3512E2741C8D75AD00AD5B01 /* LaunchScreen.storyboard */,
 				3512E2771C8D75AD00AD5B01 /* Info.plist */,
@@ -176,6 +179,7 @@
 				356621A81C9A53E20085D5C1 /* InfoPlist.strings in Resources */,
 				356621A11C9A531E0085D5C1 /* Localizable.strings in Resources */,
 				3512E2731C8D75AD00AD5B01 /* Assets.xcassets in Resources */,
+				35AA00031D0000000085D5C1 /* wheelspin4s.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
